@@ -1,15 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useAccountStore } from "@/store/account";
+import { useEffect } from "react";
 
 export const ConnectButton = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [currentAddress, setCurrentAddress] = useState("");
+  const { address, setAddress, isConnected, setIsConnected } =
+    useAccountStore();
 
   useEffect(() => {
-    checkConnection();
+    checkConnectionOfUser();
   }, []);
 
-  const checkConnection = async () => {
+  console.log(address);
+
+  const checkConnectionOfUser = async () => {
     if (typeof window.ethereum !== "undefined") {
       const accounts = await window.ethereum.request({
         method: "eth_accounts",
@@ -17,7 +20,7 @@ export const ConnectButton = () => {
 
       if (accounts.length > 0) {
         setIsConnected(true);
-        setCurrentAddress(accounts[0]);
+        setAddress(accounts[0]);
       }
     }
   };
@@ -32,7 +35,7 @@ export const ConnectButton = () => {
 
         if (accounts.length > 0) {
           setIsConnected(true);
-          setCurrentAddress(accounts[0]);
+          setAddress(accounts[0]);
         }
       } else {
         console.error("MetaMask is not installed.");
@@ -45,7 +48,7 @@ export const ConnectButton = () => {
   return (
     <div className="absolute top-4 right-4">
       {isConnected ? (
-        <p>Connected Address: {currentAddress}</p>
+        <p>Connected Address: {address}</p>
       ) : (
         <button
           className="rounded-full bg-neutral-500 text-white py-2 px-4"
