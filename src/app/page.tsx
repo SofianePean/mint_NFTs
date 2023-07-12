@@ -1,6 +1,6 @@
 "use client";
+import { CardNFTs } from "@/components/CardNFTs";
 import { Contract, ContractRunner, InterfaceAbi, ethers } from "ethers";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import GreedyGeese from "../artifacts/contracts/GreedyGeese.sol/GreedyGeese.json";
 
@@ -9,7 +9,8 @@ interface DataContract {
   totalSupply: string;
 }
 
-const GGaddress = "0xF047B7A4dE9311a9788F93a8e4050B0508d1De77";
+const GG_ADDRESS = "0xF047B7A4dE9311a9788F93a8e4050B0508d1De77";
+
 export default function Home() {
   const [error, setError] = useState("");
   const [data, setData] = useState<DataContract>({} as DataContract);
@@ -29,24 +30,42 @@ export default function Home() {
       const provider = new ethers.BrowserProvider(window.ethereum);
 
       const signer = await provider.getSigner();
-      // console.log("signer", signer);
-      // const contract = getSmartContract(GGaddress, GreedyGeese.abi, signer);
       const contract = new ethers.Contract(
-        GGaddress,
+        GG_ADDRESS,
         GreedyGeese.abi,
         provider
       );
 
       try {
         const cost = await contract.cost();
-
         const totalSupply = await contract.totalSupply();
         const data = {
           cost: ethers.formatEther(cost),
           totalSupply: String(totalSupply),
         };
-        console.log("data", data);
         setData(data);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    }
+  }
+
+  async function mint() {
+    if (typeof window.ethereum !== "undefined") {
+      let accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = getSmartContract(GG_ADDRESS, GreedyGeese.abi, signer);
+      try {
+        let overrides = {
+          from: accounts[0],
+          value: ethers.parseUnits(data.cost, "ether"),
+        };
+        const transaction = await contract.mint(accounts[0], 1, overrides);
+        await transaction.wait();
+        fetchData();
       } catch (err: any) {
         setError(err.message);
       }
@@ -55,18 +74,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-between p-24">
-      <div className="grid gap-1 grid-cols-5 bg-red-200">
-        <Image alt="Image of NFT" src="/NFTs/40.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/41.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/42.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/43.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/44.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/45.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/46.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/47.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/48.png" width={150} height={200} />
-        <Image alt="Image of NFT" src="/NFTs/49.png" width={150} height={200} />
-      </div>
+      <CardNFTs />
 
       <h1 className="mt-8 text-3xl">Mint a Greedy Gees NFT !</h1>
       <p className="text-2xl font-bold mt-4">{data.totalSupply} / 50</p>
@@ -74,7 +82,10 @@ export default function Home() {
         Each Greedy Geese NFT costs {data.cost} eth (excluding gas fees)
       </p>
 
-      <button className="rounded-full bg-green-500 py-2 px-4 mt-8">
+      <button
+        className="rounded-full bg-green-500 py-2 px-4 mt-8"
+        onClick={mint}
+      >
         Mint now
       </button>
     </main>
