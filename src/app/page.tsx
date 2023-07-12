@@ -1,5 +1,6 @@
 "use client";
 import { CardNFTs } from "@/components/CardNFTs";
+import { ConnectButton } from "@/components/ConnectButton";
 import { Contract, ContractRunner, InterfaceAbi, ethers } from "ethers";
 import { useEffect, useState } from "react";
 import GreedyGeese from "../artifacts/contracts/GreedyGeese.sol/GreedyGeese.json";
@@ -29,7 +30,6 @@ export default function Home() {
     if (typeof window.ethereum !== "undefined") {
       const provider = new ethers.BrowserProvider(window.ethereum);
 
-      const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         GG_ADDRESS,
         GreedyGeese.abi,
@@ -73,10 +73,13 @@ export default function Home() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-between p-24">
+    <main className="bg-gradient-to-r from-blue-100 via-blue-300 to-blue-500 min-h-screen flex flex-col items-center justify-between p-24">
+      <ConnectButton />
       <CardNFTs />
 
-      <h1 className="mt-8 text-3xl">Mint a Greedy Gees NFT !</h1>
+      <h1 className="mt-8 text-5xl block sm:inline bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+        Mint a Greedy Gees NFT !
+      </h1>
       <p className="text-2xl font-bold mt-4">{data.totalSupply} / 50</p>
       <p className="mt-8">
         Each Greedy Geese NFT costs {data.cost} eth (excluding gas fees)

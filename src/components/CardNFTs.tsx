@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export const CardNFTs = () => {
   return (
-    <div className="grid gap-1 grid-cols-5 bg-red-200">
+    <div className="grid gap-1 grid-cols-5">
       <Image alt="Image of NFT" src="/NFTs/40.png" width={150} height={200} />
       <Image alt="Image of NFT" src="/NFTs/41.png" width={150} height={200} />
       <Image alt="Image of NFT" src="/NFTs/42.png" width={150} height={200} />
